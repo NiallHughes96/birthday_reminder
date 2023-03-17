@@ -11,33 +11,52 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.birthdayreminder.ui.theme.BirthdayReminderTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             BirthdayReminderTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column {
-                        Title(profileInfo = ProfileInfo("Niall"))
-                        UpcomingBirthdays(birthdays = SampleData.birthdaysSample)
-                    }
 
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                ) {
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home"
+                    ) {
+                        composable(route = "home") {
+                            HomeScreen(navController)
+                        }
+                        composable(route = "addBirthday") {
+                            AddBirthdayScreen(
+                                navController
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -48,8 +67,24 @@ data class ProfileInfo(val user: String)
 data class UpcomingBirthday(val name: String, val date: String)
 
 @Composable
+fun HomeScreen(navController: NavController) {
+    // A surface container using the 'background' color from the theme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column {
+            TopAppBar {
+                Title(profileInfo = ProfileInfo("Niall"))
+                AddBirthday(navController)
+            }
+            UpcomingBirthdays(birthdays = SampleData.birthdaysSample)
+        }
+
+    }
+}
+@Composable
 fun Title(profileInfo: ProfileInfo){
-    Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(8.dp)){
+    Row(verticalAlignment = Alignment.CenterVertically ) {
         Image(
             painter = painterResource(id = R.drawable.birthday_cake),
             contentDescription = "Birthday cake image",
@@ -59,13 +94,17 @@ fun Title(profileInfo: ProfileInfo){
                 .border(1.5.dp, MaterialTheme.colors.secondary, CircleShape),
             contentScale = ContentScale.FillHeight
         )
-
-        Row (){
-            Text(text = "Welcome ")
-            Surface(shape = MaterialTheme.shapes.medium, elevation = 1.dp){
-                Text(text = profileInfo.user, color = MaterialTheme.colors.secondaryVariant)
-            }
+        Spacer(modifier = Modifier.width(8.dp))
+        Surface(color = Color.Transparent){
+            Text(text = profileInfo.user, style = MaterialTheme.typography.h1)
         }
+    }
+}
+
+@Composable
+fun AddBirthday(navController: NavController){
+    Button(onClick = { navController.navigate("addBirthday") }) {
+        Image(painter = painterResource(id = R.drawable.ic_add_birthday), contentDescription = "Add birthday icon")
     }
 }
 
@@ -99,6 +138,13 @@ fun UpcomingBirthdays(birthdays: List<UpcomingBirthday>) {
         }
     }
 }
+
+@Composable
+fun AddBirthdayScreen(navController: NavController){
+    //TODO design screen
+}
+
+
 
 @Preview(name = "Light Mode", showBackground = true)
 //@Preview(
